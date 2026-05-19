@@ -10,8 +10,10 @@ const acel = 0.5;
 const speed = 5;
 const jumpFrames = 15;
 const scaleSpeed = 0.05;
+const spawnTime = 120;
 
 //changing  variables
+let playing = true;
 let scroolSpeed = 0.8;
 let score = 0;
 let frameTime = 0;
@@ -29,7 +31,9 @@ spawner.w = 40;
 spawner.h = 40;
 spawner.vel.y = scroolSpeed;
 
-let spawn1 = new spawner.Sprite(40,-300);
+let spawn1 = new spawner.Sprite(300,-300);
+let spawn3 = new spawner.Sprite(-300,-300);
+
 
 //decleration of barrel group
 let barels = new Group();
@@ -39,18 +43,59 @@ barels.d = 30;
 //decleration of possible tile spawns for game
 let tiles = [
 	[
-		'p    p    p'
+		'p'
+	],
+	[
+		' p'
+	],
+	[
+		'  p'
+	],
+	[
+		'   p'
+	],
+	[
+		'    p'
+	],
+	[
+		'     p'
+	],
+	[
+		'      p'
+	],
+	[
+		'       p'
+	],
+	[
+		'        p'
+	],
+	[
+		'         p'
+	],
+	[
+		'          p'
+	],
+	[
+		'           p'
+	],
+	[
+		'            p'
+	],
+	[
+		'             p'
+	],
+	[
+		'              p'
 	]
 ];
 
 //starting tiles on the screen
 let startTile = [
-	'p  p  p  p  p',
+	'p  p     p  p',
 	'  p   p    p ',
-	'p   p   p   p',
-	'p  p  p  p  p',
-	'  p   p    p ',
-	'p   p   p   p'
+	'p   p p p   p',
+	'p  p     p  p',
+	'  p   ppp   p '
 ];
 
 // physical bariar on edge of screen
@@ -79,8 +124,14 @@ function createPlatform(x, y){
 createPlatform(0, 300);
 
 //object below the screen that destroys sprites that hit it
-let floor = new Sprite(0,450,1600,50,STATIC);
+let floor = new Sprite(0,425,1520,50,STATIC);
+floor.color= 'red';
+floor.stroke = 'red';
 
+function startGame(){
+	camera.zoomTo(windowWidth/1563);
+}
+startGame();
 //returns true when the player is allowed to jump
 function playerOnGround(){
 	for (let plat of platforms){
@@ -194,9 +245,35 @@ function shouldSpawnTile(){
 	return true;
 }
 
-//spawns a random tile
+//spawns 2 random tile with chance of more spawning that decreases as game progresses
 function spawnTile(){
-	platforms.addTiles(tiles[0], -700, -665, 100, 200);
+	//aTiles is a list of tiles that are not taken
+	let aTiles = [];
+	for (let i = 0; i < tiles.length; i++){
+		aTiles.push(i);
+	}
+
+	let index1 = Math.floor(Math.random()*aTiles.length);
+	let tile = [aTiles[index1],0];
+	aTiles.splice(index1, 1);
+
+	let index2 = Math.floor(Math.random()*aTiles.length);
+	tile[1] = aTiles[index2];
+	aTiles.splice(index2, 1);
+
+	platforms.addTiles(tiles[tile[0]], -700, -665, 100, 200);
+	platforms.addTiles(tiles[tile[1]], -700, -665, 100, 200);
+
+	let i = 2;
+	let spawnChance = 4;
+	while ((Math.random()*spawnChance) > scroolSpeed && aTiles.length > 5){
+		let index = Math.floor(Math.random()*aTiles.length);
+		tile.push(aTiles[index]);
+		aTiles.splice(index, 1);
+		platforms.addTiles(tiles[tile[i]], -700, -665, 100, 200);
+		spawnChance -= 0.4;
+		i++;
+	}
 }
 
 //ajusts position of dynamic objects to acount for scroll speed
@@ -222,20 +299,22 @@ function play() {
 	move();
 	spawn(frameTime);
 	scroll();
+	if (shouldSpawnTile()){
+		spawnTile();
+	}
 	if (checkDefeat()){
 		endGame();
 	}
-	if (frameTime > 59){
+	if (frameTime > spawnTime){
 		score++;
 		frameTime = 0;
 		scaleDifficulty();
-		if (shouldSpawnTile()){
-			spawnTile();
-		}
 	}
 }
 q5.update = function () {
 	background('skyblue');
-	text('click to jump!', 0, -50);
-	play();
+	text('score: ' + score, -width/2+50, -height/2+50);
+	if (playing){
+		play();
+	}
 }
