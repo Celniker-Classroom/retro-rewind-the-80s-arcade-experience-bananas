@@ -24,26 +24,9 @@ let frameTime = 0;
 let frames = 0;
 let onGround = false;
 
-let playerLeftImg;
-let playerRightImg;
-let barrelImg;
-let platformImg;
-let spawnerImg;
-
-function preload() {
-	playerRightImg = loadImage('images/various monke/monke_right (1).png');
-	playerLeftImg = loadImage('images/various monke/monke_left (1).png');
-	barrelImg = loadImage('images/Barrel (2).png');
-	platformImg = loadImage('images/steel thingy.png');
-	spawnerImg = loadImage('images/barrel spawner.png');
-	player.img = playerRightImg;
-	platforms.img = platformImg;
-	spawner.img = spawnerImg;
-}
-
 //decleration of player sprite
 let player = new Sprite(0,0, 50, DYNAMIC);
-player.scale = 0.5;
+player.img = '🤪';
 
 
 //decleration of barrel spanwers
@@ -151,8 +134,6 @@ function startGame(){
 	floor.y = window.innerHeight/2 + floor.h/2;
 	let spawn1 = new spawner.Sprite(300,-300);
 	let spawn3 = new spawner.Sprite(-300,-300);
-	spawn1.img = spawnerImg;
-	spawn3.img = spawnerImg;
 	platforms.addTiles(startTile, -700, -665, 100, 200);
 	for (let i = 0; i < 10; i++){
 		let y = (i-5)*100;
@@ -208,12 +189,10 @@ function move(){
 		if (player.vel.x > -speed){
 			player.vel.x -= acel;
 		}
-		player.img = playerLeftImg;
 	} else if (keyIsDown(RIGHT_ARROW)){
 		if (player.vel.x < speed){
 			player.vel.x += acel;
 		} 
-		player.img = playerRightImg;
 	}
 	if ((mouse.presses() || kb.presses(' ') || kb.presses('up')) && onGround) {
 		frames = 10;
@@ -238,10 +217,8 @@ function spawn(t) {
 			let y = tempSpawn.y - barels.d/2 + spawner.h/2; 
 			let a = new barels.Sprite(x - offSet, y);
 			a.vel.x = - barelSpeed;
-			a.img = barrelImg;
 			let b = new barels.Sprite(x + offSet, y);
 			b.vel.x = barelSpeed;
-			b.img = barrelImg;
 		}
 	}
 }
