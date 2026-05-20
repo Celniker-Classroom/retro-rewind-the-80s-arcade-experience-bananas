@@ -11,18 +11,21 @@ const speed = 5;
 const jumpFrames = 15;
 const scaleSpeed = 0.05;
 const spawnTime = 120;
+const startScroolSpeed;
 
+text.size(33);
 //changing  variables
-let playing = true;
-let scroolSpeed = 0.8;
+let gameOver = false;
+let titleScreen = true;
+let playing = false;
+let scroolSpeed = startScroolSpeed;
 let score = 0;
 let frameTime = 0;
 let frames = 0;
 let onGround = false;
 
 //decleration of player sprite
-let player = new Sprite(0,0, 50, DYNAMIC);
-player.img = '🤪';
+let player;
 
 //decleration of barrel spanwers
 let spawner = new Group();
@@ -31,8 +34,6 @@ spawner.w = 40;
 spawner.h = 40;
 spawner.vel.y = scroolSpeed;
 
-let spawn1 = new spawner.Sprite(300,-300);
-let spawn3 = new spawner.Sprite(-300,-300);
 
 
 //decleration of barrel group
@@ -103,11 +104,6 @@ let walls = new Group();
 walls.physics = STATIC;
 walls.width = 10; 
 walls.height = 100;
-for (let i = 0; i < 10; i++){
-	let y = (i-5)*100;
-	let a = new walls.Sprite(-755, y);
-	let b = new walls.Sprite(755, y);
-}
 
 
 //platforms that player jumps on
@@ -117,21 +113,35 @@ platforms.height = 10;
 platforms.tile = "p";
 platforms.physics = KIN;
 platforms.vel.y = scroolSpeed;
-platforms.addTiles(startTile, -700, -665, 100, 200);
-function createPlatform(x, y){
- 	let plat = new platforms.Sprite(x, y);
- }
-createPlatform(0, 300);
 
 //object below the screen that destroys sprites that hit it
-let floor = new Sprite(0,425,1520,50,STATIC);
-floor.color= 'red';
-floor.stroke = 'red';
+let floor;
 
-function startGame(){
+function scaleCamera(){
 	camera.zoomTo(windowWidth/1563);
 }
-startGame();
+scaleCamera();
+
+//starts the game and puts all the sprites in the right spot
+function startGame(){
+	scaleCamera();
+	player = new Sprite(0,0, 50, DYNAMIC);
+	player.img = '🤪';
+	floor = new Sprite(0,425,1520,50,STATIC);
+	floor.color= 'red';
+	floor.stroke = 'red';
+	let spawn1 = new spawner.Sprite(300,-300);
+	let spawn3 = new spawner.Sprite(-300,-300);
+	platforms.addTiles(startTile, -700, -665, 100, 200);
+	for (let i = 0; i < 10; i++){
+		let y = (i-5)*100;
+		let a = new walls.Sprite(-755, y);
+		let b = new walls.Sprite(755, y);
+	}
+	score = 0;
+	scroolSpeed = startScroolSpeed;
+}
+
 //returns true when the player is allowed to jump
 function playerOnGround(){
 	for (let plat of platforms){
@@ -221,9 +231,35 @@ function checkDefeat(){
 	return false;
 }
 
-//ends the game and shows title screen
+//displays the gameOver screen
+function gameOverScreen(){
+	text("Game Over", 0, -50);
+	text("You Scored: " + score, 0, 0);
+	text("Click to return to title screen", 0, 50);
+	if (mouse.presses()){
+		titleScreen = true;
+		gameOver = false;
+	}
+}
+
+//ends the game 
 function endGame(){
-	alert("a");
+	playing = false;
+	for (let plat of barels){
+		plat.delete();
+	}
+	for (let plat of platforms){
+		plat.delete();
+	}	
+	player.delete();
+	for (let plat of spawners){
+		plat.delete();
+	}
+	for (let plat of walls){
+		plat.delete();
+	}
+	floor.delete();
+	gameOver = true;
 }
 floor.overlaps(player, endGame);
 
@@ -277,7 +313,7 @@ function spawnTile(){
 }
 
 //ajusts position of dynamic objects to acount for scroll speed
-function scroll(){
+function scrool(){
 	player.y += scroolSpeed/60;
 	for (let plat of barels){
 		plat.y += scroolSpeed/60;
@@ -291,6 +327,23 @@ function scaleDifficulty(){
 	}
 }
 
+//displays the tileScreen
+function titleScreen(){
+	text.size(100);
+	text("Going Bana-nas!", 0, -130);
+	text.size(32);
+	text("Use arrow keys to move", 0 , -50);
+	text("Outrun the scrolling screen!", 0, 0);
+	text("Avoid the falling barrels!", 0, 50);
+	text("If you dare jump on the tops of barrels!", 0, 100);
+	text("Click to start", 0, 150);
+	if (mouse.presses()){
+		startGame();
+		titleScreen = false;
+		playing = true;
+	}
+}
+
 //calls all functions that need to happen when playing the game
 function play() {
 	player.vel.y += 3/60;
@@ -298,7 +351,7 @@ function play() {
 	onGround = playerOnGround();
 	move();
 	spawn(frameTime);
-	scroll();
+	scrool();
 	if (shouldSpawnTile()){
 		spawnTile();
 	}
@@ -316,5 +369,11 @@ q5.update = function () {
 	text('score: ' + score, -width/2+50, -height/2+50);
 	if (playing){
 		play();
+	}
+	if (gameOver){
+		gameOverScreen();
+	}
+	if (titleScreen){
+		titleScreen();
 	}
 }
