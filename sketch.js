@@ -256,7 +256,7 @@ function endGame(){
 	for (let plat of platforms){
 		plat.delete();
 	}
-	for (let plat of spawners){
+	for (let plat of spawner){
 		plat.delete();
 	}
 	for (let plat of walls){
