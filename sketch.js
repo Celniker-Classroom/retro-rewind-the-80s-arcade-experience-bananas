@@ -11,9 +11,9 @@ const speed = 5;
 const jumpFrames = 15;
 const scaleSpeed = 0.05;
 const spawnTime = 120;
-const startScroolSpeed;
+const startScroolSpeed = 0.8;
 
-text.size(33);
+text.size = 32;
 //changing  variables
 let gameOver = false;
 let titleScreen = true;
@@ -25,7 +25,9 @@ let frames = 0;
 let onGround = false;
 
 //decleration of player sprite
-let player;
+let player = new Sprite(0,0, 50, DYNAMIC);
+player.img = '🤪';
+
 
 //decleration of barrel spanwers
 let spawner = new Group();
@@ -115,7 +117,9 @@ platforms.physics = KIN;
 platforms.vel.y = scroolSpeed;
 
 //object below the screen that destroys sprites that hit it
-let floor;
+let floor = new Sprite(0,1000,1520,50,STATIC);
+floor.color= 'red';
+floor.stroke = 'red';
 
 function scaleCamera(){
 	camera.zoomTo(windowWidth/1563);
@@ -125,11 +129,9 @@ scaleCamera();
 //starts the game and puts all the sprites in the right spot
 function startGame(){
 	scaleCamera();
-	player = new Sprite(0,0, 50, DYNAMIC);
-	player.img = '🤪';
-	floor = new Sprite(0,425,1520,50,STATIC);
-	floor.color= 'red';
-	floor.stroke = 'red';
+	player.x = 0;
+	player.y = 50;
+	floor.y = window.innerHeight/2 + floor.h/2;
 	let spawn1 = new spawner.Sprite(300,-300);
 	let spawn3 = new spawner.Sprite(-300,-300);
 	platforms.addTiles(startTile, -700, -665, 100, 200);
@@ -244,21 +246,22 @@ function gameOverScreen(){
 
 //ends the game 
 function endGame(){
+	floor.y = 1000;
+	player.x = 1000;
+	player.y = 10;
 	playing = false;
 	for (let plat of barels){
 		plat.delete();
 	}
 	for (let plat of platforms){
 		plat.delete();
-	}	
-	player.delete();
+	}
 	for (let plat of spawners){
 		plat.delete();
 	}
 	for (let plat of walls){
 		plat.delete();
 	}
-	floor.delete();
 	gameOver = true;
 }
 floor.overlaps(player, endGame);
@@ -328,10 +331,11 @@ function scaleDifficulty(){
 }
 
 //displays the tileScreen
-function titleScreen(){
-	text.size(100);
+function displayTitleScreen(){
+	player.y = 50;
+	text.size = 100;
 	text("Going Bana-nas!", 0, -130);
-	text.size(32);
+	text.size = 32;
 	text("Use arrow keys to move", 0 , -50);
 	text("Outrun the scrolling screen!", 0, 0);
 	text("Avoid the falling barrels!", 0, 50);
@@ -374,6 +378,6 @@ q5.update = function () {
 		gameOverScreen();
 	}
 	if (titleScreen){
-		titleScreen();
+		displayTitleScreen();
 	}
 }
