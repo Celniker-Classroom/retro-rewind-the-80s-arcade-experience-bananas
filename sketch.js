@@ -26,7 +26,7 @@ let onGround = false;
 
 //decleration of player sprite
 let player = new Sprite(0,0, 50, DYNAMIC);
-player.img = '🤪';
+player.img = 'images/various monke/monke_walking_right (2).png';
 
 
 //decleration of barrel spanwers
@@ -35,6 +35,7 @@ spawner.physics = STATIC;
 spawner.w = 40;
 spawner.h = 40;
 spawner.vel.y = scroolSpeed;
+spawner.img = 'images/barrel spawner.png';
 
 
 
@@ -42,6 +43,7 @@ spawner.vel.y = scroolSpeed;
 let barels = new Group();
 barels.physics = DYNAMIC;
 barels.d = 30;
+barels.img = 'images/Barrel (2).png';
 
 //decleration of possible tile spawns for game
 let tiles = [
