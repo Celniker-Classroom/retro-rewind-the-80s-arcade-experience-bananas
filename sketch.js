@@ -155,6 +155,9 @@ function startGame(){
 	player.y = 30;
 	player.vel.y = 0;
 	player.vel.x = 0;
+	player.img = 'images/various monke/monke_right (2).png';
+	player.ani = null;
+	facing = 'right';
 	floor.y = height/2/scale + floor.h/2;
 	let spawn1 = new spawner.Sprite(300,-300);
 	let spawn3 = new spawner.Sprite(-300,-300);
@@ -395,7 +398,10 @@ function scaleDifficulty(){
 //displays the titleScreen
 function displayTitleScreen(){
 
+	player.x = 0;
 	player.y = 50;
+	player.img = 'images/various monke/monke_right (2).png';
+	facing = 'right';
 
 	background(135, 206, 235);
 
