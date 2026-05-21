@@ -1,5 +1,6 @@
 await Canvas();
 world.gravity.y = 7;
+frameRate(60);
 
 //static variables
 const barelSpeed = 4;
@@ -13,7 +14,6 @@ const scaleSpeed = 0.05;
 const spawnTime = 120;
 const startScroolSpeed = 0.8;
 
-text.size = 32;
 //changing  variables
 let gameOver = false;
 let titleScreen = true;
@@ -25,7 +25,7 @@ let frames = 0;
 let onGround = false;
 
 //decleration of player sprite
-let player = new Sprite(0,0, 50, DYNAMIC);
+let player = new Sprite(1000,0, 50, DYNAMIC);
 player.img = '🤪';
 
 
@@ -116,27 +116,41 @@ platforms.tile = "p";
 platforms.physics = KIN;
 platforms.vel.y = scroolSpeed;
 
+let scale = 0
+//scales the screen to make it a set width
+function scaleCamera(){
+	scale = windowWidth/1563
+	camera.zoomTo(scale);
+}
+scaleCamera();
+
 //object below the screen that destroys sprites that hit it
-let floor = new Sprite(0,1000,1520,50,STATIC);
+let floor = new Sprite(0,height+25,1520,50,STATIC);
 floor.color= 'red';
 floor.stroke = 'red';
 
-function scaleCamera(){
-	camera.zoomTo(windowWidth/1563);
+//returns text to default size
+function setGameTextStyle(){
+	textSize(32);
+	fill('white');
+	stroke('black');
+	strokeWeight(1);
+	textAlign(LEFT, TOP);
+	allSprites.stroke = 'black';
 }
-scaleCamera();
 
 //starts the game and puts all the sprites in the right spot
 function startGame(){
 	scaleCamera();
+	setGameTextStyle();
 	player.x = 0;
 	player.y = 50;
-	floor.y = window.innerHeight/2 + floor.h/2;
+	floor.y = height/2/scale + floor.h/2;
 	let spawn1 = new spawner.Sprite(300,-300);
 	let spawn3 = new spawner.Sprite(-300,-300);
 	platforms.addTiles(startTile, -700, -665, 100, 200);
-	for (let i = 0; i < 10; i++){
-		let y = (i-5)*100;
+	for (let i = 0; i < 15; i++){
+		let y = (i-7)*100;
 		let a = new walls.Sprite(-755, y);
 		let b = new walls.Sprite(755, y);
 	}
@@ -148,8 +162,10 @@ function startGame(){
 function playerOnGround(){
 	for (let plat of platforms){
 		if (player.collides(plat)){
-			frames = 0;
-			return true;
+			if (player.y < plat.y){
+				frames = 0;
+				return true;
+			}
 		}
 	}
 	for (let plat of barels){
@@ -235,9 +251,31 @@ function checkDefeat(){
 
 //displays the gameOver screen
 function gameOverScreen(){
-	text("Game Over", 0, -50);
-	text("You Scored: " + score, 0, 0);
-	text("Click to return to title screen", 0, 50);
+
+	background(20, 20, 30);
+
+	textAlign(CENTER, CENTER);
+
+	// title
+	textSize(90);
+	fill('red');
+	stroke('black');
+	strokeWeight(6);
+	text("GAME OVER", 0, -140);
+
+	// score
+	textSize(42);
+	fill('white');
+	strokeWeight(3);
+	text("Score: " + score, 0, -20);
+
+	// restart message
+	textSize(28);
+	fill('#ffd166');
+	strokeWeight(2);
+	text("Click to return to title screen", 0, 90);
+
+	//moves to tile screen
 	if (mouse.presses()){
 		titleScreen = true;
 		gameOver = false;
@@ -248,20 +286,14 @@ function gameOverScreen(){
 function endGame(){
 	floor.y = 1000;
 	player.x = 1000;
+	player.vel.x = 0;
+	player.vel.y = 0;
 	player.y = 10;
 	playing = false;
-	for (let plat of barels){
-		plat.delete();
-	}
-	for (let plat of platforms){
-		plat.delete();
-	}
-	for (let plat of spawners){
-		plat.delete();
-	}
-	for (let plat of walls){
-		plat.delete();
-	}
+	barels.deleteAll();
+	platforms.deleteAll();
+	spawner.deleteAll();
+	walls.deleteAll();
 	gameOver = true;
 }
 floor.overlaps(player, endGame);
@@ -330,17 +362,42 @@ function scaleDifficulty(){
 	}
 }
 
-//displays the tileScreen
+//displays the titleScreen
 function displayTitleScreen(){
+
 	player.y = 50;
-	text.size = 100;
-	text("Going Bana-nas!", 0, -130);
-	text.size = 32;
-	text("Use arrow keys to move", 0 , -50);
-	text("Outrun the scrolling screen!", 0, 0);
+
+	background(135, 206, 235);
+
+	textAlign(CENTER, CENTER);
+
+	// title
+	textSize(100);
+	fill('#ffdd00');
+	stroke('#d17d00');
+	strokeWeight(8);
+	text("Going Bana-nas!", 0, -220);
+
+	// subtitle
+	textSize(34);
+	fill('white');
+	stroke('black');
+	strokeWeight(3);
+
+	text("Use ← → Arrow Keys to Move", 0, -70);
+	text("Outrun the scrolling screen!", 0, -10);
 	text("Avoid the falling barrels!", 0, 50);
-	text("If you dare jump on the tops of barrels!", 0, 100);
-	text("Click to start", 0, 150);
+
+	fill('#ffef99');
+	text("Jump on barrels if you dare!", 0, 110);
+
+	// start button text
+	textSize(42);
+	fill('#00ff88');
+	stroke('black');
+	strokeWeight(4);
+	text("CLICK TO START", 0, 220);
+
 	if (mouse.presses()){
 		startGame();
 		titleScreen = false;
@@ -367,17 +424,19 @@ function play() {
 		frameTime = 0;
 		scaleDifficulty();
 	}
+	fill('white');
+	stroke('black');
+	text('score: ' + score, -width/2+50, -height/2+50);
 }
 q5.update = function () {
 	background('skyblue');
-	text('score: ' + score, -width/2+50, -height/2+50);
 	if (playing){
 		play();
 	}
-	if (gameOver){
+	else if (gameOver){
 		gameOverScreen();
 	}
-	if (titleScreen){
+	else if (titleScreen){
 		displayTitleScreen();
 	}
 }
