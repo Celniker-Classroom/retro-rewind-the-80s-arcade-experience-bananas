@@ -52,6 +52,8 @@ spawner.imgFit = 'contain';
 let barels = new Group();
 barels.physics = DYNAMIC;
 barels.d = 20;
+barels.w = 5;
+barels.h = 5;
 barels.img = 'images/Barrel (2).png';
 barels.imgFit = 'contain';
 
