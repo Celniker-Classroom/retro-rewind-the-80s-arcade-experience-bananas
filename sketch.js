@@ -29,7 +29,8 @@ let facing = 'right';
 let player = new Sprite(0,50, 60, 80, DYNAMIC);
 player.w = 60;
 player.h = 80;
-player.image = 'images/various%20monke/monke_right%20(2).png';
+player.image = 'images/various monke/monke_right (2).png';
+player.imgFit = 'contain';
 player.visible = true;
 player.autoDraw = true;
 player.rotationLock = true;
@@ -156,7 +157,7 @@ function startGame(){
 	player.y = 30;
 	player.vel.y = 0;
 	player.vel.x = 0;
-	player.image = 'images/various%20monke/monke_right%20(2).png';
+	player.image = 'images/various monke/monke_right (2).png';
 	player.ani = null;
 	player.visible = true;
 	player.autoDraw = true;
@@ -244,15 +245,15 @@ function move(){
 function updatePlayerSprite() {
 	if (!onGround) {
 		player.image = facing === 'left'
-			? 'images/various%20monke/monke_jump_left%20(1).png'
-			: 'images/various%20monke/monke_jump_right%20(1).png';
+			? 'images/various monke/monke_jump_left (1).png'
+			: 'images/various monke/monke_jump_right (1).png';
 		return;
 	}
 
 	if (keyIsDown(LEFT_ARROW) || keyIsDown(RIGHT_ARROW) || Math.abs(player.vel.x) > 0.5) {
 		player.image = facing === 'left'
-			? 'images/various%20monke/monke_walking_left%20(2).png'
-			: 'images/various%20monke/monke_walking_right%20(3).png';
+			? 'images/various monke/monke_walking_left (2).png'
+			: 'images/various monke/monke_walking_right (3).png';
 		return;
 	}
 
@@ -403,7 +404,7 @@ function displayTitleScreen(){
 
 	player.x = 0;
 	player.y = 50;
-	player.image = 'images/various%20monke/monke_right%20(2).png';
+	player.image = 'images/various monke/monke_right (2).png';
 	player.visible = true;
 	player.autoDraw = true;
 	facing = 'right';
