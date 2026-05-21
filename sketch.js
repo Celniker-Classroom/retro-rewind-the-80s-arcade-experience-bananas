@@ -25,10 +25,15 @@ let frames = 0;
 let onGround = false;
 
 //decleration of player sprite
-let player = new Sprite(1000,0, 20, 80, DYNAMIC);
-player.w = 20;
-player.h = 80;
-player.img = 'images/various monke/monke_walking_right (2).png';
+let player = new Sprite(1000,0, 40, 60, DYNAMIC);
+// make the player smaller by adjusting `w` and `h` above
+player.w = 40;
+player.h = 60;
+// track which way the player is facing so we can swap sprites
+let playerFacing = 'right';
+// start with a neutral right-facing sprite; change these paths to any
+// other sprite files in images/various monke as you like
+player.img = 'images/various monke/monke_right (1).png';
 player.imgFit = 'contain';
 player.rotationLock = true;
 
@@ -211,17 +216,36 @@ function playerOnGround(){
 //moves the player based on input
 function move(){
 	if (keyIsDown(LEFT_ARROW)){
+		playerFacing = 'left';
+		// switch to walking-left spritesheet while moving left
+		player.img = 'images/various monke/monke_walking_left (1).png';
 		if (player.vel.x > -speed){
 			player.vel.x -= acel;
 		}
 	} else if (keyIsDown(RIGHT_ARROW)){
+		playerFacing = 'right';
+		// switch to walking-right spritesheet while moving right
+		player.img = 'images/various monke/monke_walking_right (2).png';
 		if (player.vel.x < speed){
 			player.vel.x += acel;
 		} 
+	} else {
+		// not moving horizontally: use idle sprites depending on facing
+		if (playerFacing === 'left'){
+			player.img = 'images/various monke/monke_left (1).png';
+		} else {
+			player.img = 'images/various monke/monke_right (1).png';
+		}
 	}
 	if ((mouse.presses() || kb.presses(' ') || kb.presses('up')) && onGround) {
 		frames = 10;
 		onGround = false;
+		// use jump sprite based on facing
+		if (playerFacing === 'left') {
+			player.img = 'images/various monke/monke_jump_left.png';
+		} else {
+			player.img = 'images/various monke/monke_jump_right.png';
+		}
 		player.vel.y += jump;
 		if (player.vel.y < jump) {
 			player.vel.y = jump;
