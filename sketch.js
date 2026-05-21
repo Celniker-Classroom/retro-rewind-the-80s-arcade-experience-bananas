@@ -25,9 +25,12 @@ let frames = 0;
 let onGround = false;
 
 //decleration of player sprite
-let player = new Sprite(1000,0, 50, DYNAMIC);
+let player = new Sprite(1000,0, 20, 80, DYNAMIC);
+player.w = 20;
+player.h = 80;
 player.img = 'images/various monke/monke_walking_right (2).png';
-
+player.imgFit = 'contain';
+player.rotationLock = true;
 
 //decleration of barrel spanwers
 let spawner = new Group();
@@ -36,7 +39,7 @@ spawner.w = 40;
 spawner.h = 40;
 spawner.vel.y = scroolSpeed;
 spawner.img = 'images/barrel spawner.png';
-
+spawner.imgFit = 'contain';
 
 
 //decleration of barrel group
@@ -44,6 +47,7 @@ let barels = new Group();
 barels.physics = DYNAMIC;
 barels.d = 30;
 barels.img = 'images/Barrel (2).png';
+barels.imgFit = 'contain';
 
 //decleration of possible tile spawns for game
 let tiles = [
@@ -145,8 +149,11 @@ function setGameTextStyle(){
 function startGame(){
 	scaleCamera();
 	setGameTextStyle();
+	spawner.removeAll?.();
 	player.x = 0;
-	player.y = 50;
+	player.y = 30;
+	player.vel.y = 0;
+	player.vel.x = 0;
 	floor.y = height/2/scale + floor.h/2;
 	let spawn1 = new spawner.Sprite(300,-300);
 	let spawn3 = new spawner.Sprite(-300,-300);
@@ -164,7 +171,7 @@ function startGame(){
 function playerOnGround(){
 	for (let plat of platforms){
 		if (player.collides(plat)){
-			if (player.y < plat.y){
+			if (player.y + player.h/2 <= plat.y){
 				frames = 0;
 				return true;
 			}
