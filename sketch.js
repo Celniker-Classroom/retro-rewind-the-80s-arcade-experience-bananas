@@ -51,7 +51,6 @@ spawner.imgFit = 'contain';
 //decleration of barrel group
 let barels = new Group();
 barels.physics = DYNAMIC;
-barels.d = 20;
 barels.w = 5;
 barels.h = 5;
 barels.img = 'images/Barrel (2).png';
