@@ -25,10 +25,10 @@ let frames = 0;
 let onGround = false;
 
 //decleration of player sprite
-let player = new Sprite(1000,0, 40, 60, DYNAMIC);
+let player = new Sprite(0,0, 30, 45, DYNAMIC);
 // make the player smaller by adjusting `w` and `h` above
-player.w = 40;
-player.h = 60;
+player.w = 30;
+player.h = 45;
 // track which way the player is facing so we can swap sprites
 let playerFacing = 'right';
 // start with a neutral right-facing sprite; change these paths to any
@@ -40,8 +40,9 @@ player.rotationLock = true;
 //decleration of barrel spanwers
 let spawner = new Group();
 spawner.physics = STATIC;
-spawner.w = 40;
-spawner.h = 40;
+// make spawners smaller
+spawner.w = 24;
+spawner.h = 24;
 spawner.vel.y = scroolSpeed;
 spawner.img = 'images/barrel spawner.png';
 spawner.imgFit = 'contain';
@@ -50,7 +51,7 @@ spawner.imgFit = 'contain';
 //decleration of barrel group
 let barels = new Group();
 barels.physics = DYNAMIC;
-barels.d = 30;
+barels.d = 20;
 barels.img = 'images/Barrel (2).png';
 barels.imgFit = 'contain';
 
@@ -398,6 +399,8 @@ function scaleDifficulty(){
 //displays the titleScreen
 function displayTitleScreen(){
 
+	// ensure player is visible on the title screen
+	player.x = 0;
 	player.y = 50;
 
 	background(135, 206, 235);
