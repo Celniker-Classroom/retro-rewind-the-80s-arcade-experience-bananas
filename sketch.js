@@ -26,11 +26,12 @@ let onGround = false;
 let facing = 'right';
 
 //decleration of player sprite
-let player = new Sprite(1000,0, 20, 80, DYNAMIC);
-player.w = 20;
+let player = new Sprite(0,50, 60, 80, DYNAMIC);
+player.w = 60;
 player.h = 80;
-player.img = 'images/various monke/monke_right (2).png';
-player.imgFit = 'contain';
+player.image = 'images/various%20monke/monke_right%20(2).png';
+player.visible = true;
+player.autoDraw = true;
 player.rotationLock = true;
 
 //decleration of barrel spanwers
@@ -155,8 +156,10 @@ function startGame(){
 	player.y = 30;
 	player.vel.y = 0;
 	player.vel.x = 0;
-	player.img = 'images/various monke/monke_right (2).png';
+	player.image = 'images/various%20monke/monke_right%20(2).png';
 	player.ani = null;
+	player.visible = true;
+	player.autoDraw = true;
 	facing = 'right';
 	floor.y = height/2/scale + floor.h/2;
 	let spawn1 = new spawner.Sprite(300,-300);
@@ -240,20 +243,20 @@ function move(){
 
 function updatePlayerSprite() {
 	if (!onGround) {
-		player.img = facing === 'left'
-			? 'images/various monke/monke_jump_left (1).png'
-			: 'images/various monke/monke_jump_right (1).png';
+		player.image = facing === 'left'
+			? 'images/various%20monke/monke_jump_left%20(1).png'
+			: 'images/various%20monke/monke_jump_right%20(1).png';
 		return;
 	}
 
 	if (keyIsDown(LEFT_ARROW) || keyIsDown(RIGHT_ARROW) || Math.abs(player.vel.x) > 0.5) {
-		player.img = facing === 'left'
-			? 'images/various monke/monke_walking_left (2).png'
-			: 'images/various monke/monke_walking_right (3).png';
+		player.image = facing === 'left'
+			? 'images/various%20monke/monke_walking_left%20(2).png'
+			: 'images/various%20monke/monke_walking_right%20(3).png';
 		return;
 	}
 
-	player.img = 'images/various monke/monke_right (2).png';
+	player.image = 'images/various monke/monke_right (2).png';
 }
 
 //spawns barels at spawners once a second
@@ -400,7 +403,9 @@ function displayTitleScreen(){
 
 	player.x = 0;
 	player.y = 50;
-	player.img = 'images/various monke/monke_right (2).png';
+	player.image = 'images/various%20monke/monke_right%20(2).png';
+	player.visible = true;
+	player.autoDraw = true;
 	facing = 'right';
 
 	background(135, 206, 235);
