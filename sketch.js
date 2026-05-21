@@ -44,7 +44,7 @@ spawner.physics = STATIC;
 spawner.w = 24;
 spawner.h = 24;
 spawner.vel.y = scroolSpeed;
-spawner.img = 'images/barrel spawner.png';
+spawner.img = 'images/barrel spawner (1).png';
 spawner.imgFit = 'contain';
 
 
