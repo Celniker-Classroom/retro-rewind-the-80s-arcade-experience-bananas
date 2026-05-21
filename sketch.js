@@ -23,26 +23,21 @@ let score = 0;
 let frameTime = 0;
 let frames = 0;
 let onGround = false;
+let facing = 'right';
 
 //decleration of player sprite
-let player = new Sprite(0,0, 30, 45, DYNAMIC);
-// make the player smaller by adjusting `w` and `h` above
-player.w = 30;
-player.h = 45;
-// track which way the player is facing so we can swap sprites
-let playerFacing = 'right';
-// start with a neutral right-facing sprite; change these paths to any
-// other sprite files in images/various monke as you like
-player.img = 'images/various monke/monke_right (1).png';
+let player = new Sprite(1000,0, 20, 80, DYNAMIC);
+player.w = 20;
+player.h = 80;
+player.img = 'images/various monke/monke_right (2).png';
 player.imgFit = 'contain';
 player.rotationLock = true;
 
 //decleration of barrel spanwers
 let spawner = new Group();
 spawner.physics = STATIC;
-// make spawners smaller
-spawner.w = 24;
-spawner.h = 24;
+spawner.w = 40;
+spawner.h = 40;
 spawner.vel.y = scroolSpeed;
 spawner.img = 'images/barrel spawner (1).png';
 spawner.imgFit = 'contain';
@@ -51,9 +46,8 @@ spawner.imgFit = 'contain';
 //decleration of barrel group
 let barels = new Group();
 barels.physics = DYNAMIC;
-barels.w = 5;
-barels.h = 5;
-barels.img = 'images/Barrel (2).png';
+barels.d = 30;
+barels.img = 'images/Barrel (3).png';
 barels.imgFit = 'contain';
 
 //decleration of possible tile spawns for game
@@ -218,36 +212,19 @@ function playerOnGround(){
 //moves the player based on input
 function move(){
 	if (keyIsDown(LEFT_ARROW)){
-		playerFacing = 'left';
-		// switch to walking-left spritesheet while moving left
-		player.img = 'images/various monke/monke_walking_left (1).png';
+		facing = 'left';
 		if (player.vel.x > -speed){
 			player.vel.x -= acel;
 		}
 	} else if (keyIsDown(RIGHT_ARROW)){
-		playerFacing = 'right';
-		// switch to walking-right spritesheet while moving right
-		player.img = 'images/various monke/monke_walking_right (2).png';
+		facing = 'right';
 		if (player.vel.x < speed){
 			player.vel.x += acel;
 		} 
-	} else {
-		// not moving horizontally: use idle sprites depending on facing
-		if (playerFacing === 'left'){
-			player.img = 'images/various monke/monke_left (1).png';
-		} else {
-			player.img = 'images/various monke/monke_right (1).png';
-		}
 	}
 	if ((mouse.presses() || kb.presses(' ') || kb.presses('up')) && onGround) {
 		frames = 10;
 		onGround = false;
-		// use jump sprite based on facing
-		if (playerFacing === 'left') {
-			player.img = 'images/various monke/monke_jump_left.png';
-		} else {
-			player.img = 'images/various monke/monke_jump_right.png';
-		}
 		player.vel.y += jump;
 		if (player.vel.y < jump) {
 			player.vel.y = jump;
@@ -256,6 +233,24 @@ function move(){
 			player.vel.y = jump/2;
 		}
 	}
+}
+
+function updatePlayerSprite() {
+	if (!onGround) {
+		player.img = facing === 'left'
+			? 'images/various monke/monke_jump_left (1).png'
+			: 'images/various monke/monke_jump_right (1).png';
+		return;
+	}
+
+	if (keyIsDown(LEFT_ARROW) || keyIsDown(RIGHT_ARROW) || Math.abs(player.vel.x) > 0.5) {
+		player.img = facing === 'left'
+			? 'images/various monke/monke_walking_left (2).png'
+			: 'images/various monke/monke_walking_right (3).png';
+		return;
+	}
+
+	player.img = 'images/various monke/monke_right (2).png';
 }
 
 //spawns barels at spawners once a second
@@ -400,8 +395,6 @@ function scaleDifficulty(){
 //displays the titleScreen
 function displayTitleScreen(){
 
-	// ensure player is visible on the title screen
-	player.x = 0;
 	player.y = 50;
 
 	background(135, 206, 235);
@@ -448,6 +441,7 @@ function play() {
 	frameTime++;
 	onGround = playerOnGround();
 	move();
+	updatePlayerSprite();
 	spawn(frameTime);
 	scrool();
 	if (shouldSpawnTile()){
