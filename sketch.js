@@ -446,6 +446,9 @@ function displayTitleScreen(){
 	player.visible = true;
 	player.autoDraw = true;
 	facing = 'right';
+	camera.x = 0;
+	camera.y = 0;
+	camera.zoomTo(1);
 
 	background(135, 206, 235);
 
