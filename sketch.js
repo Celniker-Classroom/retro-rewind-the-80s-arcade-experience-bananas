@@ -1,7 +1,7 @@
 await Canvas();
 world.gravity.y = 7;
 frameRate(60);
-
+//updated
 //static variables
 const barelSpeed = 4;
 const barelJumpH = 40;
