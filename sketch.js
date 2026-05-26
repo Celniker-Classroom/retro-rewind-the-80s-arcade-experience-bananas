@@ -427,7 +427,7 @@ function play() {
 	frameTime++;
 	onGround = playerOnGround();
 	move();
-	updatePlayerSprite();
+	// updatePlayerSprite();
 	spawn(frameTime);
 	scrool();
 
