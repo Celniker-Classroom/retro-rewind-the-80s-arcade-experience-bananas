@@ -50,7 +50,7 @@ spawner.imgFit = 'contain';
 let barels = new Group();
 barels.physics = DYNAMIC;
 barels.d = 30;
-barels.img = 'images/Barrel (4).png';
+barels.img = 'images/Barrel (5).png';
 barels.imgFit = 'contain';
 barels.debug = true; // show debug outlines for barrels
 
