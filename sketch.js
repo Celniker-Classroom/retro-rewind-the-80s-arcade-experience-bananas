@@ -186,13 +186,6 @@ function playerOnGround() {
 		return true;
 	}
 
-	// Final collision check for overlapping platforms.
-	for (let plat of platforms) {
-		if (player.colliding(plat)) {
-			return true;
-		}
-	}
-
 	return false;
 }
 
