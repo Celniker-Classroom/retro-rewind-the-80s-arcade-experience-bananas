@@ -228,14 +228,12 @@ function updatePlayerSprite() {
 		return;
 	}
 
-	if (keyIsDown(LEFT_ARROW) || Math.abs(player.vel.x) > 0.5) {
-		player.image = facing === 'left'
-			? 'images/various monke/monke_walking_left (2).png'
-			: 'images/various monke/monke_walking_right (3).png';
+	if (keyIsDown(LEFT_ARROW)) {
+		player.image = 'images/various monke/monke_walking_left (2).png';
 		return;
 	}
 
-	player.image = 'images/various monke/monke_right (2).png';
+	player.image = 'images/various monke/monke_right (3).png';
 }
 
 // Spawn barrels from each spawner when the frame counter reaches 60.
