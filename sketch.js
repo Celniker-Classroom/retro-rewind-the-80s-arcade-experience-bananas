@@ -52,6 +52,7 @@ barels.physics = DYNAMIC;
 barels.d = 30;
 barels.img = 'images/Barrel (4).png';
 barels.imgFit = 'contain';
+barels.debug = true; // show debug outlines for barrels
 
 // Possible platform arrangements used when spawning new tiles.
 let tiles = [
