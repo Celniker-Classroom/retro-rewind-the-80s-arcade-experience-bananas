@@ -460,9 +460,3 @@ q5.update = function () {
 		displayTitleScreen();
 	}
 }
-
-function mousePressed() {}
-function mouseReleased() {}
-function mouseClicked() {}
-function keyPressed() {}
-function keyReleased() {}
