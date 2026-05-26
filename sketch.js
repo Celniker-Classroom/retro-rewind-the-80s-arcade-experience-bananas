@@ -34,7 +34,7 @@ player.imgFit = 'contain';
 player.visible = true;
 player.autoDraw = true;
 player.rotationLock = true; // prevent player from rotating due to physics
-player.debug = false;      // disable debug to show the sprite image
+player.debug = true;      // disable debug to show the sprite image
 
 //decleration of barrel spanwers
 let spawner = new Group();
@@ -52,7 +52,7 @@ barels.physics = DYNAMIC;
 barels.d = 30;
 barels.img = 'images/Barrel (5).png';
 barels.imgFit = 'contain';
-barels.debug = true; // show debug outlines for barrels
+barels.debug = false; // show debug outlines for barrels
 
 // Possible platform arrangements used when spawning new tiles.
 let tiles = [
