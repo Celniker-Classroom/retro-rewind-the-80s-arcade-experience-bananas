@@ -378,7 +378,7 @@ function scaleDifficulty() {
 
 // Display the title screen with instructions and start prompt.
 function displayTitleScreen() {
-	player.x = 0;
+	player.x = 1000;
 	player.y = 50;
 	player.image = 'images/various monke/monke_right (2).png';
 	player.visible = true;
