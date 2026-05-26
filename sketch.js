@@ -1,4 +1,4 @@
-await Canvas(window.innerWidth, window.innerHeight, 'c2d');
+await Canvas();
 world.gravity.y = 7;
 frameRate(60);
 
