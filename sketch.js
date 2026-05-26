@@ -50,7 +50,7 @@ spawner.imgFit = 'contain';
 let barels = new Group();
 barels.physics = DYNAMIC;
 barels.d = 30;
-barels.img = 'images/Barrel (3).png';
+barels.img = 'images/Barrel (4).png';
 barels.imgFit = 'contain';
 
 // Possible platform arrangements used when spawning new tiles.
