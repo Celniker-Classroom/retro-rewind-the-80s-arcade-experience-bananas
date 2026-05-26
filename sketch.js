@@ -1,4 +1,4 @@
-await Canvas();
+await Canvas(window.innerWidth, window.innerHeight, 'c2d');
 world.gravity.y = 7;
 frameRate(60);
 
@@ -460,3 +460,9 @@ q5.update = function () {
 		displayTitleScreen();
 	}
 }
+
+function mousePressed() {}
+function mouseReleased() {}
+function mouseClicked() {}
+function keyPressed() {}
+function keyReleased() {}
