@@ -215,13 +215,7 @@ function move() {
 	if ((mouse.presses() || kb.presses(' ') || kb.presses('up')) && onGround) {
 		frames = 10;
 		onGround = false;
-		player.vel.y += jump;
-		if (player.vel.y < jump) {
-			player.vel.y = jump;
-		} else if (player.vel.y > jump / 2) {
-			player.vel.y = jump / 2;
-		}
-	}
+		player.vel.y = jump;
 }
 
 // Update the player's displayed image depending on movement and jump state.
