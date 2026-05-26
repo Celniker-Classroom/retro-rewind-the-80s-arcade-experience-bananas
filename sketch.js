@@ -30,6 +30,8 @@ let player = new Sprite(0,50, 60, 80, DYNAMIC);
 player.w = 60;
 player.h = 80;
 player.image = 'images/various monke/monke_right (2).png';
+player.addAni('walkLeft', 'images/various monke/monke_walking_left (2)).png', 4);
+player.addAni('walkRight', 'images/various monke/monke_walking_right (3).png', 4);
 player.imgFit = 'contain';
 player.visible = true;
 player.autoDraw = true;
@@ -228,12 +230,16 @@ function updatePlayerSprite() {
 		return;
 	}
 
-	if (keyIsDown(LEFT_ARROW)) {
-		player.image = 'images/various monke/monke_walking_left (2).png';
+	if (Math.abs(player.vel.x) > 0.5) {
+		player.image = facing === 'left'
+			? ghost.changeAni('walkLeft')
+			: ghost.changeAni('walkRight');
 		return;
 	}
 
-	player.image = 'images/various monke/monke_right (3).png';
+	player.image = facing === 'left'
+		? 'images/various monke/monke_left (2).png'
+		: 'images/various monke/monke_right (2).png';
 }
 
 // Spawn barrels from each spawner when the frame counter reaches 60.
