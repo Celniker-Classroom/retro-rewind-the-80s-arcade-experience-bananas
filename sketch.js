@@ -20,8 +20,6 @@ let titleScreen = true;
 let playing = false;
 let scroolSpeed = startScroolSpeed;
 let score = 0;
-let bananaPoints = 0;
-let bananaTimer = 0;
 let frameTime = 0;
 let frames = 0;
 let onGround = false;
@@ -54,13 +52,6 @@ barels.physics = DYNAMIC;
 barels.d = 30;
 barels.img = 'images/Barrel (3).png';
 barels.imgFit = 'contain';
-
-let bananas = new Group();
-bananas.physics = STATIC;
-bananas.w = 40;
-bananas.h = 40;
-bananas.img = 'images/banana (1).png';
-bananas.imgFit = 'contain';
 
 // Possible platform arrangements used when spawning new tiles.
 let tiles = [
@@ -133,9 +124,8 @@ function startGame() {
 	scaleCamera();
 	setGameTextStyle();
 
-	// Clear any existing spawners or bananas from a previous run.
+	// Clear any existing spawners from a previous run.
 	spawner.removeAll?.();
-	bananas.removeAll?.();
 
 	player.x = 0;
 	player.y = 30;
@@ -163,10 +153,7 @@ function startGame() {
 	}
 
 	score = 0;
-	bananaPoints = 0;
-	bananaTimer = 0;
 	scroolSpeed = startScroolSpeed;
-	spawnBanana();
 }
 
 // Returns true if the player is standing on a platform, barrel, or still within jump grace frames.
@@ -296,12 +283,11 @@ function gameOverScreen() {
 	fill('white');
 	strokeWeight(3);
 	text('Score: ' + score, 0, -40);
-	text('Bananas: ' + bananaPoints, 0, 20);
 
 	textSize(28);
 	fill('#ffd166');
 	strokeWeight(2);
-	text('Click to return to title screen', 0, 110);
+	text('Click to return to title screen', 0, 20);
 
 	if (mouse.presses()) {
 		titleScreen = true;
@@ -321,11 +307,10 @@ function endGame() {
 	platforms.deleteAll();
 	spawner.deleteAll();
 	walls.deleteAll();
-	bananas.deleteAll();
 	gameOver = true;
 }
 
-// Register overlap callbacks for the floor and banana collection.
+// Register overlap callbacks for the floor.
 floor.overlaps(player, endGame);
 
 function clearWorld(floor, sprite, dur) {
@@ -334,8 +319,6 @@ function clearWorld(floor, sprite, dur) {
 
 floor.overlaps(barels, clearWorld);
 floor.overlaps(platforms, clearWorld);
-floor.overlaps(bananas, clearWorld);
-bananas.overlaps(player, collectBanana);
 
 // Check whether there is enough empty space above the top of the screen to spawn more tile rows.
 function shouldSpawnTile() {
@@ -376,27 +359,6 @@ function spawnTile() {
 		spawnChance -= 0.4;
 		i++;
 	}
-
-	// Occasionally spawn a banana collectible along with new platforms.
-	if (Math.random() < 0.45) {
-		spawnBanana();
-	}
-}
-
-// Create a banana collectible at a random horizontal position above the screen.
-function spawnBanana() {
-	let x = Math.floor(Math.random() * 1400) - 700;
-	let banana = new bananas.Sprite(x, -720);
-	banana.w = 40;
-	banana.h = 40;
-	banana.vel.y = scroolSpeed;
-}
-
-// Handle collecting a banana by increasing score and removing the banana.
-function collectBanana(banana, player) {
-	score += 2;
-	bananaPoints += 1;
-	banana.delete();
 }
 
 // Move dynamic objects downward as the world scrolls.
@@ -404,9 +366,6 @@ function scrool() {
 	player.y += scroolSpeed / 60;
 	for (let plat of barels) {
 		plat.y += scroolSpeed / 60;
-	}
-	for (let banana of bananas) {
-		banana.y += scroolSpeed / 60;
 	}
 }
 
@@ -466,7 +425,6 @@ function displayTitleScreen() {
 function play() {
 	player.vel.y += 3 / 60; // apply a small downward force for gravity
 	frameTime++;
-	bananaTimer++;
 	onGround = playerOnGround();
 	move();
 	updatePlayerSprite();
@@ -487,17 +445,9 @@ function play() {
 		scaleDifficulty();
 	}
 
-	if (bananaTimer >= 180) {
-		bananaTimer = 0;
-		spawnBanana();
-	}
-
 	fill('white');
 	stroke('black');
 	text('score: ' + score, -width / 2 + 50, -height / 2 + 50);
-	image('images/banana (1).png', -width / 2 + 50, -height / 2 + 100, 40, 40);
-
-	text('x ' + bananaPoints, -width/2+110, -height/2+108);
 }
 q5.update = function () {
 	background('skyblue');
