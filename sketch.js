@@ -1,18 +1,18 @@
 await Canvas();
 world.gravity.y = 7;
 frameRate(60);
-
-// Game constants: fixed values used for movement, timing, and difficulty scaling.
-const barelSpeed = 4;          // horizontal velocity of barrels when spawned
-const barelJumpH = 40;         // maximum vertical tolerance for jumping on a barrel
-const barelJumpW = 90/2;       // horizontal tolerance for landing on a barrel
-const jump = -8.3;               // upward velocity applied when player jumps
-const acel = 0.5;              // horizontal acceleration for smooth movement
-const speed = 5;               // maximum horizontal movement speed
-const jumpFrames = 15;         // number of frames jump input is still accepted after leaving ground
-const scaleSpeed = 0.05;       // how fast the scroll speed increases over time
-const spawnTime = 120;         // frames between score increments and difficulty ramps
-const startScroolSpeed = 0.8;  // initial downward scroll speed
+//updated
+//static variables
+const barelSpeed = 4;
+const barelJumpH = 40;
+const barelJumpW = 90/2;
+const jump = -8;
+const acel = 0.5;
+const speed = 5;
+const jumpFrames = 15;
+const scaleSpeed = 0.05;
+const spawnTime = 120;
+const startScroolSpeed = 0.8;
 
 //changing  variables
 let gameOver = false;
@@ -20,6 +20,8 @@ let titleScreen = true;
 let playing = false;
 let scroolSpeed = startScroolSpeed;
 let score = 0;
+let bananaPoints = 0;
+let bananaTimer = 0;
 let frameTime = 0;
 let frames = 0;
 let onGround = false;
@@ -29,14 +31,11 @@ let facing = 'right';
 let player = new Sprite(0,50, 60, 80, DYNAMIC);
 player.w = 60;
 player.h = 80;
-player.image = 'images/variousMonke/monke_right.png';
-player.addAni('walkLeft', 'images/variousMonke/monke_walking_left.png', 4);
-player.addAni('walkRight', 'images/variousMonke/monke_walking_right.png', 4);
+player.image = 'images/various monke/monke_right (2).png';
 player.imgFit = 'contain';
 player.visible = true;
 player.autoDraw = true;
-player.rotationLock = true; // prevent player from rotating due to physics
-player.debug = true;      // disable debug to show the sprite image
+player.rotationLock = true;
 
 //decleration of barrel spanwers
 let spawner = new Group();
@@ -52,30 +51,66 @@ spawner.imgFit = 'contain';
 let barels = new Group();
 barels.physics = DYNAMIC;
 barels.d = 30;
-barels.img = 'images/Barrel (5).png';
+barels.img = 'images/Barrel (3).png';
 barels.imgFit = 'contain';
-barels.debug = false; // show debug outlines for barrels
 
-// Possible platform arrangements used when spawning new tiles.
+let bananas = new Group();
+bananas.physics = STATIC;
+bananas.w = 40;
+bananas.h = 40;
+bananas.img = 'images/banana (1).png';
+bananas.imgFit = 'contain';
+
+//decleration of possible tile spawns for game
 let tiles = [
-	['p'],
-	[' p'],
-	['  p'],
-	['   p'],
-	['    p'],
-	['     p'],
-	['      p'],
-	['       p'],
-	['        p'],
-	['         p'],
-	['          p'],
-	['           p'],
-	['            p'],
-	['             p'],
-	['              p']
+	[
+		'p'
+	],
+	[
+		' p'
+	],
+	[
+		'  p'
+	],
+	[
+		'   p'
+	],
+	[
+		'    p'
+	],
+	[
+		'     p'
+	],
+	[
+		'      p'
+	],
+	[
+		'       p'
+	],
+	[
+		'        p'
+	],
+	[
+		'         p'
+	],
+	[
+		'          p'
+	],
+	[
+		'           p'
+	],
+	[
+		'            p'
+	],
+	[
+		'             p'
+	],
+	[
+		'              p'
+	]
 ];
 
-// Initial platform layout shown when the game starts.
+//starting tiles on the screen
 let startTile = [
 	'p  p     p  p',
 	'  p   p    p ',
@@ -87,7 +122,7 @@ let startTile = [
 // physical bariar on edge of screen
 let walls = new Group();
 walls.physics = STATIC;
-walls.width = 10;
+walls.width = 10; 
 walls.height = 100;
 
 
@@ -99,21 +134,21 @@ platforms.tile = "p";
 platforms.physics = KIN;
 platforms.vel.y = scroolSpeed;
 
-// Used to keep the viewport scaled to a consistent width regardless of window size.
-let scale = 0;
-function scaleCamera() {
-	scale = windowWidth / 1563;
+let scale = 0
+//scales the screen to make it a set width
+function scaleCamera(){
+	scale = windowWidth/1563
 	camera.zoomTo(scale);
 }
 scaleCamera();
 
-// Invisible floor below the visible game area used to remove off-screen sprites.
-let floor = new Sprite(0, height + 25, 1520, 50, STATIC);
-floor.color = 'red';
+//object below the screen that destroys sprites that hit it
+let floor = new Sprite(0,height+25,1520,50,STATIC);
+floor.color= 'red';
 floor.stroke = 'red';
 
-// Reset text style for HUD and in-game messages.
-function setGameTextStyle() {
+//returns text to default size
+function setGameTextStyle(){
 	textSize(32);
 	fill('white');
 	stroke('black');
@@ -122,14 +157,12 @@ function setGameTextStyle() {
 	allSprites.stroke = 'black';
 }
 
-// Starts or restarts the game by resetting the world, player position, and initial tiles.
-function startGame() {
+//starts the game and puts all the sprites in the right spot
+function startGame(){
 	scaleCamera();
 	setGameTextStyle();
-
-	// Clear any existing spawners from a previous run.
 	spawner.removeAll?.();
-
+	bananas.removeAll?.();
 	player.x = 0;
 	player.y = 30;
 	player.vel.y = 0;
@@ -139,164 +172,169 @@ function startGame() {
 	player.visible = true;
 	player.autoDraw = true;
 	facing = 'right';
-
-	// Position the floor and spawn the initial spawners.
-	floor.y = height / 2 / scale + floor.h / 2;
-	new spawner.Sprite(300, -300);
-	new spawner.Sprite(-300, -300);
-
-	// Create the starting set of platforms for the player to jump on.
+	floor.y = height/2/scale + floor.h/2;
+	let spawn1 = new spawner.Sprite(300,-300);
+	let spawn3 = new spawner.Sprite(-300,-300);
 	platforms.addTiles(startTile, -700, -665, 100, 200);
-
-	// Create invisible left/right boundary walls for the playable area.
-	for (let i = 0; i < 15; i++) {
-		let y = (i - 7) * 100;
-		new walls.Sprite(-755, y);
-		new walls.Sprite(755, y);
+	for (let i = 0; i < 15; i++){
+		let y = (i-7)*100;
+		let a = new walls.Sprite(-755, y);
+		let b = new walls.Sprite(755, y);
 	}
-
 	score = 0;
+	bananaPoints = 0;
+	bananaTimer = 0;
 	scroolSpeed = startScroolSpeed;
+	spawnBanana();
 }
 
-// Returns true if the player is standing on a platform, barrel, or still within jump grace frames.
-function playerOnGround() {
-	for (let plat of platforms) {
-		if (player.collides(plat)) {
-			// Player is landing on top of a platform.
-			if (player.y + player.h / 2 <= plat.y) {
+//returns true when the player is allowed to jump
+function playerOnGround(){
+	for (let plat of platforms){
+		if (player.collides(plat)){
+			if (player.y + player.h/2 <= plat.y){
 				frames = 0;
 				return true;
 			}
 		}
 	}
-
-	// Allow the player to land on barrels with some tolerance for position.
-	for (let plat of barels) {
-		let yOff = player.y - plat.y + player.h / 2 + barels.d / 2;
-		if (yOff <= 0 && yOff >= -barelJumpH) {
-			let xOff = Math.abs(player.x - plat.x - player.w / 2 - barels.d / 2);
-			if (xOff <= barelJumpW) {
+	for (let plat of barels){
+		let x = plat.x;
+		let y = plat.y;
+		let yOff = player.y-plat.y + player.h/2 + barels.d/2;
+		if (yOff <= 0 && yOff >= -barelJumpH){
+			let xOff = Math.abs(player.x - plat.x - player.w/2 - barels.d/2);
+			if (xOff <= barelJumpW){
 				frames = 8;
 				return true;
 			}
 		}
 	}
-
-	// If the player recently left the ground, still allow a short jump grace period.
-	frames++;
-	if (frames < jumpFrames) {
+	// if (player.collides(floor)){
+	// 	frames = 0;
+	// 	return true;
+	// }
+	frames ++;
+	if (frames < jumpFrames){
 		return true;
 	}
-	for (let plat of platforms) {
-		if (player.colliding(plat)) {
-			if (player.y + player.h / 2 <= plat.y) {
-				return true;
-			}
+	for (let plat of platforms){
+		if (player.colliding(plat)){
+			return true;
 		}
 	}
-
+	// if (player.colliding(floor)){
+	// 	return true;
+	// }
 	return false;
 }
 
-// Apply horizontal movement and jump input to the player.
-function move() {
-	if (keyIsDown(LEFT_ARROW)) {
+//moves the player based on input
+function move(){
+	if (keyIsDown(LEFT_ARROW)){
 		facing = 'left';
-		if (player.vel.x > -speed) {
+		if (player.vel.x > -speed){
 			player.vel.x -= acel;
 		}
-	} else if (keyIsDown(RIGHT_ARROW)) {
+	} else if (keyIsDown(RIGHT_ARROW)){
 		facing = 'right';
-		if (player.vel.x < speed) {
+		if (player.vel.x < speed){
 			player.vel.x += acel;
-		}
+		} 
 	}
-
-	// Jump when the player is grounded and presses space, up, or clicks.
 	if ((mouse.presses() || kb.presses(' ') || kb.presses('up')) && onGround) {
 		frames = 10;
 		onGround = false;
-		player.vel.y = jump;
+		player.vel.y += jump;
+		if (player.vel.y < jump) {
+			player.vel.y = jump;
+		}
+		else if (player.vel.y > jump/2){
+			player.vel.y = jump/2;
+		}
 	}
 }
 
-// Update the player's displayed image depending on movement and jump state.
 function updatePlayerSprite() {
 	if (!onGround) {
 		player.image = facing === 'left'
-			? 'images/variousMonke/monke_jump_left.png'
-			: 'images/variousMonke/monke_jump_right.png';
+			? 'images/various monke/monke_jump_left (1).png'
+			: 'images/various monke/monke_jump_right (1).png';
 		return;
 	}
 
-	if (Math.abs(player.vel.x) > 0.5) {
+	if (keyIsDown(LEFT_ARROW) || Math.abs(player.vel.x) > 0.5) {
 		player.image = facing === 'left'
-			? ghost.changeAni('walkLeft')
-			: ghost.changeAni('walkRight');
+			? 'images/various monke/monke_walking_left (2).png'
+			: 'images/various monke/monke_walking_right (3).png';
 		return;
 	}
 
-	player.image = facing === 'left'
-		? 'images/variousMonke/monke_left.png'
-		: 'images/variousMonke/monke_right.png';
+	player.image = 'images/various monke/monke_right (2).png';
 }
 
-// Spawn barrels from each spawner when the frame counter reaches 60.
+//spawns barels at spawners once a second
 function spawn(t) {
-	if (t == 60) {
+	if (t == 60){
 		score++;
-		let offSet = barels.d / 2;
-		for (let tempSpawn of spawner) {
+		let offSet = barels.d/2;
+		for (let tempSpawn of spawner){
 			let x = tempSpawn.x;
-			let y = tempSpawn.y - barels.d / 2 + spawner.h / 2;
+			let y = tempSpawn.y - barels.d/2 + spawner.h/2; 
 			let a = new barels.Sprite(x - offSet, y);
-			a.vel.x = -barelSpeed;
+			a.vel.x = - barelSpeed;
 			let b = new barels.Sprite(x + offSet, y);
 			b.vel.x = barelSpeed;
 		}
 	}
 }
 
-// Returns true if a barrel collision ends the game.
-function checkDefeat() {
-	for (let plat of barels) {
-		if (player.collides(plat)) {
+// checks if the player hit a barrel
+function checkDefeat(){
+	for (let plat of barels){
+		if (player.collides(plat)){
 			return true;
 		}
 	}
 	return false;
 }
 
-// Draw the game over screen and wait for a click to return to the title.
-function gameOverScreen() {
+//displays the gameOver screen
+function gameOverScreen(){
+
 	background(20, 20, 30);
+
 	textAlign(CENTER, CENTER);
 
+	// title
 	textSize(90);
 	fill('red');
 	stroke('black');
 	strokeWeight(6);
-	text('GAME OVER', 0, -140);
+	text("GAME OVER", 0, -140);
 
+	// score
 	textSize(42);
 	fill('white');
 	strokeWeight(3);
-	text('Score: ' + score, 0, -40);
+	text("Score: " + score, 0, -40);
+	text("Bananas: " + bananaPoints, 0, 20);
 
+	// restart message
 	textSize(28);
 	fill('#ffd166');
 	strokeWeight(2);
-	text('Click to return to title screen', 0, 20);
+	text("Click to return to title screen", 0, 110);
 
-	if (mouse.presses()) {
+	//moves to tile screen
+	if (mouse.presses()){
 		titleScreen = true;
 		gameOver = false;
 	}
 }
 
-// End the current game and remove all active sprites from the world.
-function endGame() {
+//ends the game 
+function endGame(){
 	floor.y = 1000;
 	player.x = 1000;
 	player.vel.x = 0;
@@ -307,42 +345,44 @@ function endGame() {
 	platforms.deleteAll();
 	spawner.deleteAll();
 	walls.deleteAll();
+	bananas.deleteAll();
 	gameOver = true;
 }
-
-// Register overlap callbacks for the floor.
 floor.overlaps(player, endGame);
 
-function clearWorld(floor, sprite, dur) {
+//removes objects that hit the floor sprite
+function clearWorld(floor, sprite, dur){
 	sprite.delete();
 }
 
 floor.overlaps(barels, clearWorld);
 floor.overlaps(platforms, clearWorld);
+floor.overlaps(bananas, clearWorld);
+bananas.overlaps(player, collectBanana);
 
-// Check whether there is enough empty space above the top of the screen to spawn more tile rows.
-function shouldSpawnTile() {
-	for (let plat of platforms) {
-		if (plat.y < -470) {
+//checks if there are no longer sprites above the vissible screen
+function shouldSpawnTile(){
+	for (let plat of platforms){
+		if (plat.y < -470){
 			return false;
 		}
 	}
 	return true;
 }
 
-// Spawn platform tiles in random positions and optionally spawn extra platforms.
-function spawnTile() {
-	// Build a list of unused tile pattern indices.
+//spawns 2 random tile with chance of more spawning that decreases as game progresses
+function spawnTile(){
+	//aTiles is a list of tiles that are not taken
 	let aTiles = [];
-	for (let i = 0; i < tiles.length; i++) {
+	for (let i = 0; i < tiles.length; i++){
 		aTiles.push(i);
 	}
 
-	let index1 = Math.floor(Math.random() * aTiles.length);
-	let tile = [aTiles[index1], 0];
+	let index1 = Math.floor(Math.random()*aTiles.length);
+	let tile = [aTiles[index1],0];
 	aTiles.splice(index1, 1);
 
-	let index2 = Math.floor(Math.random() * aTiles.length);
+	let index2 = Math.floor(Math.random()*aTiles.length);
 	tile[1] = aTiles[index2];
 	aTiles.splice(index2, 1);
 
@@ -351,35 +391,58 @@ function spawnTile() {
 
 	let i = 2;
 	let spawnChance = 4;
-	while (Math.random() * spawnChance > scroolSpeed && aTiles.length > 5) {
-		let index = Math.floor(Math.random() * aTiles.length);
+	while ((Math.random()*spawnChance) > scroolSpeed && aTiles.length > 5){
+		let index = Math.floor(Math.random()*aTiles.length);
 		tile.push(aTiles[index]);
 		aTiles.splice(index, 1);
 		platforms.addTiles(tiles[tile[i]], -700, -665, 100, 200);
 		spawnChance -= 0.4;
 		i++;
 	}
-}
 
-// Move dynamic objects downward as the world scrolls.
-function scrool() {
-	player.y += scroolSpeed / 60;
-	for (let plat of barels) {
-		plat.y += scroolSpeed / 60;
+	if (Math.random() < 0.45) {
+		spawnBanana();
 	}
 }
 
-// Increase scroll speed over time until a maximum limit.
-function scaleDifficulty() {
-	if (scroolSpeed < 3) {
+function spawnBanana() {
+	let x = Math.floor(Math.random() * 1400) - 700;
+	let banana = new bananas.Sprite(x, -720);
+	banana.w = 40;
+	banana.h = 40;
+	banana.vel.y = scroolSpeed;
+}
+
+function collectBanana(banana, player){
+	score += 2;
+	bananaPoints += 1;
+	banana.delete();
+}
+
+//ajusts position of dynamic objects to acount for scroll speed
+function scrool(){
+	player.y += scroolSpeed/60;
+	for (let plat of barels){
+		plat.y += scroolSpeed/60;
+	}
+	for (let banana of bananas){
+		banana.y += scroolSpeed/60;
+	}
+}
+
+//scales the speed at which objects scrol donwards on the screen;
+function scaleDifficulty(){
+	if (scroolSpeed < 3){
 		scroolSpeed += scaleSpeed;
 	}
 }
 
-// Display the title screen with instructions and start prompt.
-function displayTitleScreen() {
-	player.x = 1000;
+//displays the titleScreen
+function displayTitleScreen(){
+
+	player.x = 0;
 	player.y = 50;
+	player.image = 'images/various monke/monke_right (2).png';
 	player.visible = true;
 	player.autoDraw = true;
 	facing = 'right';
@@ -388,65 +451,73 @@ function displayTitleScreen() {
 	camera.zoomTo(1);
 
 	background(135, 206, 235);
+
 	textAlign(CENTER, CENTER);
 
+	// title
 	textSize(100);
 	fill('#ffdd00');
 	stroke('#d17d00');
 	strokeWeight(8);
-	text('Going Bana-nas!', 0, -220);
+	text("Going Bana-nas!", 0, -220);
 
+	// subtitle
 	textSize(34);
 	fill('white');
 	stroke('black');
 	strokeWeight(3);
-	text('Use ← → Arrow Keys to Move', 0, -70);
-	text('Outrun the scrolling screen!', 0, -10);
-	text('Avoid the falling barrels!', 0, 50);
+
+	text("Use ← → Arrow Keys to Move", 0, -70);
+	text("Outrun the scrolling screen!", 0, -10);
+	text("Avoid the falling barrels!", 0, 50);
 
 	fill('#ffef99');
-	text('Jump on barrels if you dare!', 0, 110);
+	text("Jump on barrels if you dare!", 0, 110);
 
+	// start button text
 	textSize(42);
 	fill('#00ff88');
 	stroke('black');
 	strokeWeight(4);
-	text('CLICK TO START', 0, 220);
+	text("CLICK TO START", 0, 220);
 
-	if (mouse.presses()) {
+	if (mouse.presses()){
 		startGame();
 		titleScreen = false;
 		playing = true;
 	}
 }
 
-// Main game loop called while the player is actively playing.
+//calls all functions that need to happen when playing the game
 function play() {
-	player.vel.y += 3 / 60; // apply a small downward force for gravity
+	player.vel.y += 3/60;
 	frameTime++;
+	bananaTimer++;
 	onGround = playerOnGround();
 	move();
-	// updatePlayerSprite();
+	updatePlayerSprite();
 	spawn(frameTime);
 	scrool();
-
-	if (shouldSpawnTile()) {
+	if (shouldSpawnTile()){
 		spawnTile();
 	}
-
-	if (checkDefeat()) {
+	if (checkDefeat()){
 		endGame();
 	}
-
-	if (frameTime > spawnTime) {
+	if (frameTime > spawnTime){
 		score++;
 		frameTime = 0;
 		scaleDifficulty();
 	}
-
+	if (bananaTimer >= 180) {
+		bananaTimer = 0;
+		spawnBanana();
+	}
 	fill('white');
 	stroke('black');
-	text('score: ' + score, -width / 2 + 50, -height / 2 + 50);
+	text('score: ' + score, -width/2+50, -height/2+50);
+	image('images/banana (1).png', -width/2+50, -height/2+100, 40, 40);
+	text('x ' + bananaPoints, -width/2+110, -height/2+108);
 }
 q5.update = function () {
 	background('skyblue');
