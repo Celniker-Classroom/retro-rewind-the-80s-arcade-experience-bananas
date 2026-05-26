@@ -6,7 +6,7 @@ frameRate(60);
 const barelSpeed = 4;          // horizontal velocity of barrels when spawned
 const barelJumpH = 40;         // maximum vertical tolerance for jumping on a barrel
 const barelJumpW = 90/2;       // horizontal tolerance for landing on a barrel
-const jump = -8;               // upward velocity applied when player jumps
+const jump = -8.3;               // upward velocity applied when player jumps
 const acel = 0.5;              // horizontal acceleration for smooth movement
 const speed = 5;               // maximum horizontal movement speed
 const jumpFrames = 15;         // number of frames jump input is still accepted after leaving ground
@@ -216,6 +216,7 @@ function move() {
 		frames = 10;
 		onGround = false;
 		player.vel.y = jump;
+	}
 }
 
 // Update the player's displayed image depending on movement and jump state.
