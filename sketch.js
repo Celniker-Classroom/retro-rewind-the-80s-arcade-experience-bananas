@@ -186,6 +186,13 @@ function playerOnGround() {
 	if (frames < jumpFrames) {
 		return true;
 	}
+	for (let plat of platforms) {
+		if (player.colliding(plat)) {
+			if (player.y + player.h / 2 <= plat.y) {
+				return true;
+			}
+		}
+	}
 
 	return false;
 }
