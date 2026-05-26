@@ -1,18 +1,18 @@
 await Canvas();
 world.gravity.y = 7;
 frameRate(60);
-//updated
-//static variables
-const barelSpeed = 4;
-const barelJumpH = 40;
-const barelJumpW = 90/2;
-const jump = -8;
-const acel = 0.5;
-const speed = 5;
-const jumpFrames = 15;
-const scaleSpeed = 0.05;
-const spawnTime = 120;
-const startScroolSpeed = 0.8;
+
+// Game constants: fixed values used for movement, timing, and difficulty scaling.
+const barelSpeed = 4;          // horizontal velocity of barrels when spawned
+const barelJumpH = 40;         // maximum vertical tolerance for jumping on a barrel
+const barelJumpW = 90/2;       // horizontal tolerance for landing on a barrel
+const jump = -8.3;               // upward velocity applied when player jumps
+const acel = 0.5;              // horizontal acceleration for smooth movement
+const speed = 5;               // maximum horizontal movement speed
+const jumpFrames = 15;         // number of frames jump input is still accepted after leaving ground
+const scaleSpeed = 0.05;       // how fast the scroll speed increases over time
+const spawnTime = 120;         // frames between score increments and difficulty ramps
+const startScroolSpeed = 0.8;  // initial downward scroll speed
 
 //changing  variables
 let gameOver = false;
@@ -20,8 +20,6 @@ let titleScreen = true;
 let playing = false;
 let scroolSpeed = startScroolSpeed;
 let score = 0;
-let bananaPoints = 0;
-let bananaTimer = 0;
 let frameTime = 0;
 let frames = 0;
 let onGround = false;
@@ -31,11 +29,14 @@ let facing = 'right';
 let player = new Sprite(0,50, 60, 80, DYNAMIC);
 player.w = 60;
 player.h = 80;
-player.image = 'images/various monke/monke_right (2).png';
+player.image = 'images/variousMonke/monke_right.png';
+player.addAni('walkLeft', 'images/variousMonke/monke_walking_left.png', 4);
+player.addAni('walkRight', 'images/variousMonke/monke_walking_right.png', 4);
 player.imgFit = 'contain';
 player.visible = true;
 player.autoDraw = true;
-player.rotationLock = true;
+player.rotationLock = true; // prevent player from rotating due to physics
+player.debug = true;      // disable debug to show the sprite image
 
 //decleration of barrel spanwers
 let spawner = new Group();
@@ -51,66 +52,30 @@ spawner.imgFit = 'contain';
 let barels = new Group();
 barels.physics = DYNAMIC;
 barels.d = 30;
-barels.img = 'images/Barrel (3).png';
+barels.img = 'images/Barrel (5).png';
 barels.imgFit = 'contain';
+barels.debug = false; // show debug outlines for barrels
 
-let bananas = new Group();
-bananas.physics = STATIC;
-bananas.w = 40;
-bananas.h = 40;
-bananas.img = 'images/banana (1).png';
-bananas.imgFit = 'contain';
-
-//decleration of possible tile spawns for game
+// Possible platform arrangements used when spawning new tiles.
 let tiles = [
-	[
-		'p'
-	],
-	[
-		' p'
-	],
-	[
-		'  p'
-	],
-	[
-		'   p'
-	],
-	[
-		'    p'
-	],
-	[
-		'     p'
-	],
-	[
-		'      p'
-	],
-	[
-		'       p'
-	],
-	[
-		'        p'
-	],
-	[
-		'         p'
-	],
-	[
-		'          p'
-	],
-	[
-		'           p'
-	],
-	[
-		'            p'
-	],
-	[
-		'             p'
-	],
-	[
-		'              p'
-	]
+	['p'],
+	[' p'],
+	['  p'],
+	['   p'],
+	['    p'],
+	['     p'],
+	['      p'],
+	['       p'],
+	['        p'],
+	['         p'],
+	['          p'],
+	['           p'],
+	['            p'],
+	['             p'],
+	['              p']
 ];
 
-//starting tiles on the screen
+// Initial platform layout shown when the game starts.
 let startTile = [
 	'p  p     p  p',
 	'  p   p    p ',
@@ -122,7 +87,7 @@ let startTile = [
 // physical bariar on edge of screen
 let walls = new Group();
 walls.physics = STATIC;
-walls.width = 10; 
+walls.width = 10;
 walls.height = 100;
 
 
@@ -134,17 +99,17 @@ platforms.tile = "p";
 platforms.physics = KIN;
 platforms.vel.y = scroolSpeed;
 
-let scale = 0
-//scales the screen to make it a set width
-function scaleCamera(){
-	scale = windowWidth/1563
+// Used to keep the viewport scaled to a consistent width regardless of window size.
+let scale = 0;
+function scaleCamera() {
+	scale = windowWidth / 1563;
 	camera.zoomTo(scale);
 }
 scaleCamera();
 
-//object below the screen that destroys sprites that hit it
-let floor = new Sprite(0,height+25,1520,50,STATIC);
-floor.color= 'red';
+// Invisible floor below the visible game area used to remove off-screen sprites.
+let floor = new Sprite(0, height + 25, 1520, 50, STATIC);
+floor.color = 'red';
 floor.stroke = 'red';
 
 //returns text to default size
@@ -219,7 +184,7 @@ function playerOnGround(){
 		return true;
 	}
 	for (let plat of platforms){
-		if (player.colliding(plat)){
+		if (player.colliding(plat) && player.y + player.h/2 <= plat.y){
 			return true;
 		}
 	}
@@ -254,23 +219,24 @@ function move(){
 		}
 	}
 }
-
 function updatePlayerSprite() {
 	if (!onGround) {
 		player.image = facing === 'left'
-			? 'images/various monke/monke_jump_left (1).png'
-			: 'images/various monke/monke_jump_right (1).png';
+			? 'images/variousMonke/monke_jump_left.png'
+			: 'images/variousMonke/monke_jump_right.png';
 		return;
 	}
 
-	if (keyIsDown(LEFT_ARROW) || Math.abs(player.vel.x) > 0.5) {
+	if (Math.abs(player.vel.x) > 0.5) {
 		player.image = facing === 'left'
-			? 'images/various monke/monke_walking_left (2).png'
-			: 'images/various monke/monke_walking_right (3).png';
+			? ghost.changeAni('walkLeft')
+			: ghost.changeAni('walkRight');
 		return;
 	}
 
-	player.image = 'images/various monke/monke_right (2).png';
+	player.image = facing === 'left'
+		? 'images/variousMonke/monke_left.png'
+		: 'images/variousMonke/monke_right.png';
 }
 
 //spawns barels at spawners once a second
@@ -358,7 +324,6 @@ function clearWorld(floor, sprite, dur){
 floor.overlaps(barels, clearWorld);
 floor.overlaps(platforms, clearWorld);
 floor.overlaps(bananas, clearWorld);
-bananas.overlaps(player, collectBanana);
 
 //checks if there are no longer sprites above the vissible screen
 function shouldSpawnTile(){
@@ -400,24 +365,9 @@ function spawnTile(){
 		i++;
 	}
 
-	if (Math.random() < 0.45) {
-		spawnBanana();
-	}
 }
 
-function spawnBanana() {
-	let x = Math.floor(Math.random() * 1400) - 700;
-	let banana = new bananas.Sprite(x, -720);
-	banana.w = 40;
-	banana.h = 40;
-	banana.vel.y = scroolSpeed;
-}
 
-function collectBanana(banana, player){
-	score += 2;
-	bananaPoints += 1;
-	banana.delete();
-}
 
 //ajusts position of dynamic objects to acount for scroll speed
 function scrool(){
@@ -440,9 +390,8 @@ function scaleDifficulty(){
 //displays the titleScreen
 function displayTitleScreen(){
 
-	player.x = 0;
+	player.x = 1000;
 	player.y = 50;
-	player.image = 'images/various monke/monke_right (2).png';
 	player.visible = true;
 	player.autoDraw = true;
 	facing = 'right';
@@ -509,15 +458,9 @@ function play() {
 		frameTime = 0;
 		scaleDifficulty();
 	}
-	if (bananaTimer >= 180) {
-		bananaTimer = 0;
-		spawnBanana();
-	}
 	fill('white');
 	stroke('black');
 	text('score: ' + score, -width/2+50, -height/2+50);
-	image('images/banana (1).png', -width/2+50, -height/2+100, 40, 40);
-	text('x ' + bananaPoints, -width/2+110, -height/2+108);
 }
 q5.update = function () {
 	background('skyblue');
