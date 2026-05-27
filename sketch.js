@@ -6,13 +6,15 @@ frameRate(60);
 const barelSpeed = 4;          // horizontal velocity of barrels when spawned
 const barelJumpH = 40;         // maximum vertical tolerance for jumping on a barrel
 const barelJumpW = 90/2;       // horizontal tolerance for landing on a barrel
-const jump = -8.3;               // upward velocity applied when player jumps
+const jump = -8;               // upward velocity applied when player jumps
 const acel = 0.5;              // horizontal acceleration for smooth movement
 const speed = 5;               // maximum horizontal movement speed
 const jumpFrames = 15;         // number of frames jump input is still accepted after leaving ground
 const scaleSpeed = 0.05;       // how fast the scroll speed increases over time
 const spawnTime = 120;         // frames between score increments and difficulty ramps
 const startScroolSpeed = 0.8;  // initial downward scroll speed
+const minFrameDelay = 2;  	   // fastest animation (at max speed)
+const maxFrameDelay = 8;       // slowest animation (just above threshold)
 
 //changing variables
 let gameOver = false;
@@ -24,19 +26,22 @@ let frameTime = 0;
 let frames = 0;
 let onGround = false;
 let facing = 'right';
+let currentAnimation = null; // track current animation to avoid restarting it
 
 //decleration of player sprite
-let player = new Sprite(0,50, 60, 80, DYNAMIC);
-player.w = 60;
-player.h = 80;
-player.image = 'images/variousMonke/monke_right.png';
+let player = new Sprite(0,50, 30, 100, DYNAMIC);
+player.addAni('idleRight', 'images/variousMonke/monke_right.png', 1);
+player.addAni('idleLeft', 'images/variousMonke/monke_left.png', 1);
+player.addAni('jumpRight', 'images/variousMonke/monke_jump_right.png', 1);
+player.addAni('jumpLeft', 'images/variousMonke/monke_jump_left.png', 1);
 player.addAni('walkLeft', 'images/variousMonke/monke_walking_left.png', 4);
 player.addAni('walkRight', 'images/variousMonke/monke_walking_right.png', 4);
+player.changeAni('idleRight');
 player.imgFit = 'contain';
 player.visible = true;
 player.autoDraw = true;
-player.rotationLock = true; // prevent player from rotating due to physics
-player.debug = true;      // disable debug to show the sprite image
+player.rotationLock = true;
+player.debug = false;
 
 //decleration of barrel spanwers
 let spawner = new Group();
@@ -131,11 +136,11 @@ function startGame(){
 	player.y = 30;
 	player.vel.y = 0;
 	player.vel.x = 0;
-	player.image = 'images/various monke/monke_right (2).png';
-	player.ani = null;
+	player.changeAni('idleRight');
 	player.visible = true;
 	player.autoDraw = true;
 	facing = 'right';
+	currentAnimation = 'idleRight';
 	floor.y = height/2/scale + floor.h/2;
 	let spawn1 = new spawner.Sprite(300,-300);
 	let spawn3 = new spawner.Sprite(-300,-300);
@@ -151,13 +156,15 @@ function startGame(){
 
 //returns true when the player is allowed to jump
 function playerOnGround(){
-	for (let plat of platforms){
-		if (player.collides(plat)){
-			if (player.y + player.h/2 <= plat.y){
-				frames = 0;
-				return true;
+	if (player.vel.y >= -1){
+		for (let plat of platforms){
+			if (player.collides(plat)){
+				if (player.y + player.h/2 <= plat.y){
+					frames = 0;
+					return true;
+				}
 			}
-		}
+		}	
 	}
 	for (let plat of barels){
 		let x = plat.x;
@@ -206,33 +213,39 @@ function move(){
 	if ((mouse.presses() || kb.presses(' ') || kb.presses('up')) && onGround) {
 		frames = 10;
 		onGround = false;
-		player.vel.y += jump;
-		if (player.vel.y < jump) {
-			player.vel.y = jump;
-		}
-		else if (player.vel.y > jump/2){
-			player.vel.y = jump/2;
-		}
+		player.vel.y = jump;
 	}
 }
 function updatePlayerSprite() {
+	// In the air - show jump image
 	if (!onGround) {
-		player.image = facing === 'left'
-			? 'images/variousMonke/monke_jump_left.png'
-			: 'images/variousMonke/monke_jump_right.png';
+		let targetAni = facing === 'left' ? 'jumpLeft' : 'jumpRight';
+		if (currentAnimation !== targetAni) {
+			currentAnimation = targetAni;
+			player.changeAni(targetAni);
+		}
 		return;
 	}
 
+	// On ground and moving - play walk animation
 	if (Math.abs(player.vel.x) > 0.5) {
-		player.image = facing === 'left'
-			? ghost.changeAni('walkLeft')
-			: ghost.changeAni('walkRight');
+		let frameDelay = Math.round(map(Math.abs(player.vel.x), 0.5, speed, maxFrameDelay, minFrameDelay));
+		player.ani.frameDelay = frameDelay;
+		let targetAni = facing === 'left' ? 'walkLeft' : 'walkRight';
+		if (currentAnimation !== targetAni) {
+			currentAnimation = targetAni;
+			player.changeAni(targetAni);
+		}
 		return;
 	}
 
-	player.image = facing === 'left'
-		? 'images/variousMonke/monke_left.png'
-		: 'images/variousMonke/monke_right.png';
+	// On ground and idle
+	let targetAni = facing === 'left' ? 'idleLeft' : 'idleRight';
+	if (currentAnimation !== targetAni) {
+		currentAnimation = targetAni;
+		player.changeAni(targetAni);
+	}
+
 }
 
 //spawns barels at spawners once a second
