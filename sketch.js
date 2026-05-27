@@ -14,7 +14,7 @@ const scaleSpeed = 0.05;       // how fast the scroll speed increases over time
 const spawnTime = 120;         // frames between score increments and difficulty ramps
 const startScroolSpeed = 0.8;  // initial downward scroll speed
 
-//changing  variables
+//changing variables
 let gameOver = false;
 let titleScreen = true;
 let playing = false;
@@ -127,7 +127,6 @@ function startGame(){
 	scaleCamera();
 	setGameTextStyle();
 	spawner.removeAll?.();
-	bananas.removeAll?.();
 	player.x = 0;
 	player.y = 30;
 	player.vel.y = 0;
@@ -147,10 +146,7 @@ function startGame(){
 		let b = new walls.Sprite(755, y);
 	}
 	score = 0;
-	bananaPoints = 0;
-	bananaTimer = 0;
 	scroolSpeed = startScroolSpeed;
-	spawnBanana();
 }
 
 //returns true when the player is allowed to jump
@@ -284,7 +280,6 @@ function gameOverScreen(){
 	fill('white');
 	strokeWeight(3);
 	text("Score: " + score, 0, -40);
-	text("Bananas: " + bananaPoints, 0, 20);
 
 	// restart message
 	textSize(28);
@@ -311,7 +306,6 @@ function endGame(){
 	platforms.deleteAll();
 	spawner.deleteAll();
 	walls.deleteAll();
-	bananas.deleteAll();
 	gameOver = true;
 }
 floor.overlaps(player, endGame);
@@ -374,9 +368,6 @@ function scrool(){
 	for (let plat of barels){
 		plat.y += scroolSpeed/60;
 	}
-	for (let banana of bananas){
-		banana.y += scroolSpeed/60;
-	}
 }
 
 //scales the speed at which objects scrol donwards on the screen;
@@ -419,9 +410,6 @@ function displayTitleScreen(){
 	text("Outrun the scrolling screen!", 0, -10);
 	text("Avoid the falling barrels!", 0, 50);
 
-	fill('#ffef99');
-	text("Jump on barrels if you dare!", 0, 110);
-
 	// start button text
 	textSize(42);
 	fill('#00ff88');
@@ -440,7 +428,6 @@ function displayTitleScreen(){
 function play() {
 	player.vel.y += 3/60;
 	frameTime++;
-	bananaTimer++;
 	onGround = playerOnGround();
 	move();
 	updatePlayerSprite();
