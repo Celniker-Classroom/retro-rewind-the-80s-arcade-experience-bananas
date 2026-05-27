@@ -323,7 +323,6 @@ function clearWorld(floor, sprite, dur){
 
 floor.overlaps(barels, clearWorld);
 floor.overlaps(platforms, clearWorld);
-floor.overlaps(bananas, clearWorld);
 
 //checks if there are no longer sprites above the vissible screen
 function shouldSpawnTile(){
